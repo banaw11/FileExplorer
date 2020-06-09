@@ -102,10 +102,12 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Width="200" Margin="50,15" Orientation="Horizontal">
-                                <Image Width="80" Source="{Binding Icon}"/>
-                                <TextBlock Text="{Binding NameE}"/>
-                            </StackPanel>
+                            <Button PreviewMouseLeftButtonDown="ThisPcViewSelectedItem" Tag="{Binding Tag}" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" >
+                                <StackPanel Width="200" Margin="50,15" Orientation="Horizontal">
+                                    <Image Width="80" Source="{Binding Icon}"/>
+                                    <TextBlock Text="{Binding NameE}"/>
+                                </StackPanel>
+                            </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -120,10 +122,12 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Width="200" Margin="50,15" Orientation="Horizontal">
+                            <Button PreviewMouseLeftButtonDown="ThisPcViewSelectedItem" Tag="{Binding Tag}" Background="Transparent" BorderBrush="Transparent" BorderThickness="0">
+                            <StackPanel  Width="200" Margin="50,15" Orientation="Horizontal">
                                 <Image Width="80" Source="{Binding Icon}"/>
                                 <TextBlock Text="{Binding NameE}"/>
                             </StackPanel>
+                            </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -132,10 +136,12 @@
 
 
         <Grid UIElement.PreviewMouseLeftButtonDown="PathGrid" MaxWidth="150" HorizontalAlignment="Left" MinWidth="120" Margin="5,56,0,0" Width="140">
-            <TreeView Name="explorerMenu" SelectedItemChanged="SelectedMenuItem">
+            <TreeView Name="explorerMenu"  SelectedItemChanged="SelectedMenuItem">
                 <TreeView.Resources>
-                <Style TargetType="{x:Type TreeViewItem}">
-                        <Setter Property="HeaderTemplate">
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                        <Setter Property="HeaderTemplate" >
                             <Setter.Value>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">

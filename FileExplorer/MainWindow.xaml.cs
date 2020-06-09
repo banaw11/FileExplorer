@@ -46,9 +46,42 @@ namespace FileExplorer
             if (Paths.CheckElement(element.Path))
             {
                 RefreshFileBrowser();
-
+                TreeViewItem item = new TreeViewItem { Header = element.Name, Tag = element.Path };
+                TreeViewItem tvi = FindTreeViewItem(item);
+                if (tvi != null)
+                {
+                    
+                    tvi.IsExpanded = true;
+                }
             }
 
+        }
+
+        private TreeViewItem FindTreeViewItem(object o)
+        {
+            TreeViewItem item = explorerMenu.ItemContainerGenerator.ContainerFromItem(o) as TreeViewItem;
+
+            if (item != null)
+            {
+                
+                item.IsExpanded = true;
+                return item;
+            }
+            
+            foreach (var itemTVI in item.Items)
+            {
+                TreeViewItem item2 = explorerMenu.ItemContainerGenerator.ContainerFromItem(itemTVI) as TreeViewItem;
+
+                item2= FindTreeViewItem(item2);
+
+                if (item2!= null)
+                {
+                    
+                    item2.IsExpanded = true;
+                }
+                return item2;
+            }
+            return null;
         }
         private void SelectedMenuItem(object sender, EventArgs e)
         {
@@ -74,6 +107,7 @@ namespace FileExplorer
                 {
                     Paths.ShowCurrentPath(pathControl, null);
                     LoadThisPc();
+                    
                 }
                 
             }
@@ -93,6 +127,12 @@ namespace FileExplorer
             {
                 listExplorer.Items.Add(item);
             }
+            if(listExplorer.Visibility is Visibility.Hidden)
+            {
+                listExplorer.Visibility = Visibility.Visible;
+                mainBrowser.Visibility = Visibility.Hidden;
+            }
+            Paths.ShowCurrentPath(pathControl, Paths.currentPath);
         }
 
         public void LoadThisPc()
@@ -130,7 +170,7 @@ namespace FileExplorer
                 Paths.ShowCurrentPath(pathControl, Paths.currentPath);
             }
 
-            MessageBox.Show(sender.ToString());
+           
         }
 
         /// <summary>
@@ -161,6 +201,7 @@ namespace FileExplorer
                 
                 pathText.Visibility = Visibility.Hidden;
                 pathControl.Visibility = Visibility.Visible;
+                Paths.ShowCurrentPath(pathControl, Paths.currentPath);
             }
         }
 
@@ -229,6 +270,12 @@ namespace FileExplorer
 
         }
 
-        
+        private void ThisPcViewSelectedItem(object sender, MouseButtonEventArgs e)
+        {
+            Button item = sender as Button;
+            Paths.currentPath = item.Tag.ToString();
+            Paths.CheckElement(Paths.currentPath);
+            RefreshFileBrowser();
+        }
     }
 }

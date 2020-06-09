@@ -121,7 +121,7 @@ namespace FileExplorer
         }
 
         /// <summary>
-        /// Method loading menu File Explorera. Show all drives and directory as TreView
+        /// Method loading menu FileExplorer's. Show all drives and directory as TreView
         /// </summary>
         /// <param name="explorerMenu">TreeView</param>
         public static void LoadMenuExplorer(TreeView explorerMenu)
