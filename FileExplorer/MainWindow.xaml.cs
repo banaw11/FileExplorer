@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.IO;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace FileExplorer
 {
@@ -38,51 +39,15 @@ namespace FileExplorer
         /// <param name="e">Exception</param>
         public void FileBrowser(object sender, EventArgs e)
         {
-
             ListView list = (ListView)sender;
-
             ElementOfDirectory element = (ElementOfDirectory)list.SelectedItem;
             Paths.ShowCurrentPath(pathControl, element.Path);
             if (Paths.CheckElement(element.Path))
             {
                 RefreshFileBrowser();
-                TreeViewItem item = new TreeViewItem { Header = element.Name, Tag = element.Path };
-                TreeViewItem tvi = FindTreeViewItem(item);
-                if (tvi != null)
-                {
-                    
-                    tvi.IsExpanded = true;
-                }
             }
-
         }
 
-        private TreeViewItem FindTreeViewItem(object o)
-        {
-            TreeViewItem item = explorerMenu.ItemContainerGenerator.ContainerFromItem(o) as TreeViewItem;
-
-            if (item != null)
-            {
-                
-                item.IsExpanded = true;
-                return item;
-            }
-            
-            foreach (var itemTVI in item.Items)
-            {
-                TreeViewItem item2 = explorerMenu.ItemContainerGenerator.ContainerFromItem(itemTVI) as TreeViewItem;
-
-                item2= FindTreeViewItem(item2);
-
-                if (item2!= null)
-                {
-                    
-                    item2.IsExpanded = true;
-                }
-                return item2;
-            }
-            return null;
-        }
         private void SelectedMenuItem(object sender, EventArgs e)
         {
             try
@@ -99,7 +64,7 @@ namespace FileExplorer
                             listExplorer.Visibility = Visibility.Visible;
                             mainBrowser.Visibility = Visibility.Hidden;
                         }
-
+                        TreeViewItem tvi = explorerMenu.ItemContainerGenerator.ContainerFromItem(item) as TreeViewItem;
                         RefreshFileBrowser();
                     }
                 }
@@ -122,6 +87,7 @@ namespace FileExplorer
         /// </summary>
         public void RefreshFileBrowser()
         {
+            Paths.CheckElement(Paths.CurrentPath);
             listExplorer.Items.Clear();
             foreach (var item in elements)
             {
@@ -132,7 +98,8 @@ namespace FileExplorer
                 listExplorer.Visibility = Visibility.Visible;
                 mainBrowser.Visibility = Visibility.Hidden;
             }
-            Paths.ShowCurrentPath(pathControl, Paths.currentPath);
+            Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
+            
         }
 
         public void LoadThisPc()
@@ -143,18 +110,17 @@ namespace FileExplorer
                 listExplorer.Visibility = Visibility.Hidden;
 
             }
-            Paths.currentPath = null; 
-            Paths.ThisPcElements(logicalDrives, userFolder);
-            Paths.LoadMenuExplorer(explorerMenu);
-            Paths.ShowCurrentPath(pathControl, null) ;
+            Paths.CurrentPath = null;
+            if (logicalDrives.Items.IsEmpty && userFolder.Items.IsEmpty) Paths.ThisPcElements(logicalDrives, userFolder);
+            if (explorerMenu.Items.IsEmpty) Paths.LoadMenuExplorer(explorerMenu);
+            Paths.ShowCurrentPath(pathControl, Paths.CurrentPath) ;
         }
 
         private void TypePath(object sender, MouseButtonEventArgs e)
         {
             pathText.Visibility = Visibility.Visible;
             pathControl.Visibility = Visibility.Hidden;
-
-            pathText.Text = Paths.currentPath;
+            pathText.Text = Paths.CurrentPath;
         }
 
         private void PathGrid(object sender, MouseButtonEventArgs w)
@@ -167,7 +133,7 @@ namespace FileExplorer
             }
             else
             {
-                Paths.ShowCurrentPath(pathControl, Paths.currentPath);
+                Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
             }
 
            
@@ -190,7 +156,7 @@ namespace FileExplorer
                     {
                         listExplorer.Items.Add(i);
                     }
-                    Paths.ShowCurrentPath(pathControl, Paths.currentPath);
+                    Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
                     if (mainBrowser.Visibility == Visibility.Visible)
                     {
                         mainBrowser.Visibility = Visibility.Hidden;
@@ -201,7 +167,7 @@ namespace FileExplorer
                 
                 pathText.Visibility = Visibility.Hidden;
                 pathControl.Visibility = Visibility.Visible;
-                Paths.ShowCurrentPath(pathControl, Paths.currentPath);
+                Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
             }
         }
 
@@ -213,9 +179,8 @@ namespace FileExplorer
         private void ShowSubDirectory (object sender, MouseEventArgs e)
         {
             Button button = (Button)sender;
-            button.ContextMenu.Items.Clear();
             button.Content = new Image { Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/down.png", UriKind.Absolute)) };
-            if(button.Tag != null)
+            if(button.Tag != null && button.ContextMenu.Items.IsEmpty)
             {
                 string[] directories = Directory.GetDirectories(button.Tag.ToString());
                 foreach (var dir in directories)
@@ -228,8 +193,8 @@ namespace FileExplorer
                     button.ContextMenu.Items.Add(item);
                 }
             }
-            else
-            {
+            else if( button.ContextMenu.Items.IsEmpty)
+            {   
                 foreach (var element in Paths.elementsThisPC)
                 {
                     MenuItem item = new MenuItem();
@@ -240,13 +205,7 @@ namespace FileExplorer
                     button.ContextMenu.Items.Add(item);
                 }
             }
-            if(button.ContextMenu.Items.IsEmpty is false)
-            {
-                button.ContextMenu.IsOpen = true;
-            }
-            
-
-           
+            if(button.ContextMenu.Items.IsEmpty is false) button.ContextMenu.IsOpen = true;
         }
 
         /// <summary>
@@ -257,10 +216,10 @@ namespace FileExplorer
         private void ItemSelected(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
-            Paths.currentPath = item.Tag.ToString();
-            Paths.CheckElement(Paths.currentPath);
+            Paths.CurrentPath = item.Tag.ToString();
+            Paths.CheckElement(Paths.CurrentPath);
             RefreshFileBrowser();
-            Paths.ShowCurrentPath(pathControl, Paths.currentPath);
+            Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
             if (mainBrowser.Visibility == Visibility.Visible)
             {
                 mainBrowser.Visibility = Visibility.Hidden;
@@ -273,9 +232,101 @@ namespace FileExplorer
         private void ThisPcViewSelectedItem(object sender, MouseButtonEventArgs e)
         {
             Button item = sender as Button;
-            Paths.currentPath = item.Tag.ToString();
-            Paths.CheckElement(Paths.currentPath);
+            Paths.CurrentPath = item.Tag.ToString();
+            Paths.CheckElement(Paths.CurrentPath);
             RefreshFileBrowser();
         }
+
+        public void GoToDirectory(object sender, MouseButtonEventArgs e)
+        {
+            Button directory = sender as Button;
+            if (directory.Tag != null)
+            {
+                Paths.CurrentPath = directory.Tag.ToString();
+                RefreshFileBrowser();
+            }
+            else
+            {
+                LoadThisPc();
+            }
+            
+        }
+
+        /// <summary>
+        /// Method which move to previous path
+        /// </summary>
+        /// <param name="sender">Button</param>
+        /// <param name="e"></param>
+        public void GoToPreviousPath(object sender, EventArgs e)
+        {
+            if(Paths.previousPaths.Count > 0)
+            {
+                if(Paths.previousPaths[Paths.previousPaths.Count - 1] != null)
+                {
+                    Paths.CheckElement(Paths.previousPaths[Paths.previousPaths.Count - 1]);
+                    RefreshFileBrowser();
+                }
+                else
+                {
+                    LoadThisPc();
+                }
+                Paths.nextPaths.Add(Paths.previousPaths[Paths.previousPaths.Count - 1]);
+                Paths.previousPaths.RemoveAt(Paths.previousPaths.Count - 1);
+                Paths.previousPaths.RemoveAt(Paths.previousPaths.Count - 1);
+                Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
+                
+            }
+        }
+
+        /// <summary>
+        /// Method which move to earlier path of previous
+        /// </summary>
+        /// <param name="sender">Button</param>
+        /// <param name="e"></param>
+        public void GoToNextPath (object sender, EventArgs e)
+        {
+            if(Paths.nextPaths.Count > 0)
+            {
+                if (Paths.nextPaths[Paths.nextPaths.Count - 1] != null)
+                {
+                    Paths.CheckElement(Paths.nextPaths[Paths.nextPaths.Count - 1]);
+                    RefreshFileBrowser();
+                }
+                else
+                {
+                    LoadThisPc();
+                }
+                Paths.nextPaths.RemoveAt(Paths.nextPaths.Count - 1);
+                Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
+            }
+        }
+
+        public void SearchElement (object sender, KeyEventArgs e)
+        {
+            TextBox text = sender as TextBox;
+            text.ContextMenu.IsOpen = false;
+            string searchingFile = text.Text.ToLower();
+            
+            if (searchingFile.Length > 1)
+            {
+                text.ContextMenu.Items.Clear();
+                //Thread.Sleep(600);
+                Paths.GetSearchingElement(searchingFile, Paths.CurrentPath);
+                foreach (var element in Paths.elements)
+                {
+                    MenuItem item = new MenuItem();
+                    item.Header = element.NameE;
+                    item.Tag = element.Tag;
+                    item.Icon = new Image { Source = element.Icon };
+                    text.ContextMenu.Items.Add(item);
+                }
+
+
+                
+            }
+            
+
+        }
     }
+
 }

@@ -18,26 +18,33 @@
             <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <TextBox Grid.Column="3" x:Name="searchText" Margin="10"  Height="23"  TextWrapping="Wrap" Text="" VerticalAlignment="Center" />
-            <Button Grid.Column="0" Width="35" Height="35"  x:Name="prev" Background="Transparent" BorderBrush="Transparent">
+            <TextBox KeyDown="SearchElement" Grid.Column="3" x:Name="searchText" Margin="10"  Height="23"  TextWrapping="Wrap" Text="" VerticalAlignment="Center" >
+                <TextBox.ContextMenu>
+                    <ContextMenu>
+                        <Image Source="{Binding Icon}"/>
+                    </ContextMenu>
+                </TextBox.ContextMenu>
+            </TextBox>
+
+            <Button Click="GoToPreviousPath" Grid.Column="0" Width="35" Height="35"  x:Name="prev" Background="Transparent" BorderBrush="Transparent">
                 <StackPanel>
                     <Image Width="30" Source="Icons\prev.png"/>
                 </StackPanel>
             </Button>
-            <Button Width="35" Height="35" Grid.Column="1" x:Name="next" Background="Transparent" BorderBrush="Transparent">
+            <Button Click="GoToNextPath" Width="35" Height="35" Grid.Column="1" x:Name="next" Background="Transparent" BorderBrush="Transparent">
                 <StackPanel>
                     <Image Width="30" Source="Icons\next.png"/>
                 </StackPanel>
             </Button>
-            <Grid   Grid.Column="2">
+            <Grid MouseLeftButtonDown="TypePath"  Grid.Column="2" Background="Transparent" >
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
+                    <ColumnDefinition  MinWidth="450"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition  />
                 </Grid.RowDefinitions>
-                <TextBox  KeyDown="GoToPath" Grid.Row="0" Grid.Column="1" Visibility="Hidden"  x:Name="pathText" Height="23" Margin="10" TextWrapping="Wrap"/>
-                <ItemsControl    x:Name="pathControl" Height="23" Margin="10" Grid.Column="1" Grid.Row="0">
+                <TextBox  KeyDown="GoToPath" Grid.Row="0" Grid.Column="1" Visibility="Hidden"  x:Name="pathText" Height="25" Margin="10" TextWrapping="Wrap"/>
+                <ItemsControl VerticalAlignment="Center"   Background="Transparent" BorderThickness="1" BorderBrush="Black"  x:Name="pathControl" Height="25"  Grid.Column="1" Grid.Row="0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel/>
@@ -45,9 +52,9 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel MouseLeftButtonDown="TypePath"  Orientation="Horizontal">
-                                <TextBlock MinWidth="10" Text="{Binding NameE}"/>
-                                <Button Name="childrenButton" MouseEnter="ShowSubDirectory" MouseLeave="ShowSubDirectory" Margin="5,3" Width="15" Background="Transparent" BorderBrush="Transparent" Tag="{Binding Tag}">
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <Button Name="directoryButton" MouseDoubleClick="GoToDirectory" Background="Transparent" BorderThickness="1" BorderBrush="LightGray" MaxHeight="23" MinWidth="60" Margin="5,1,0,0" Content="{Binding NameE}" Tag="{Binding Tag}"/>
+                                <Button Name="childrenButton" MouseEnter="ShowSubDirectory" Background="Transparent" BorderThickness="1" BorderBrush="LightGray" MaxHeight="23"  Margin="0,1,0,0" Width="15"  Tag="{Binding Tag}">
                                     <Button.ContextMenu>
                                         <ContextMenu />
                                     </Button.ContextMenu>
@@ -135,16 +142,24 @@
         </Grid>
 
 
-        <Grid UIElement.PreviewMouseLeftButtonDown="PathGrid" MaxWidth="150" HorizontalAlignment="Left" MinWidth="120" Margin="5,56,0,0" Width="140">
+
+        <Grid PreviewMouseLeftButtonDown="PathGrid" MaxWidth="150" HorizontalAlignment="Left" MinWidth="120" Margin="5,56,0,0" Width="140">
             <TreeView Name="explorerMenu"  SelectedItemChanged="SelectedMenuItem">
                 <TreeView.Resources>
                     <Style TargetType="{x:Type TreeViewItem}">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected"
+                              Value="True">
+                                <Setter Property="FontWeight"
+                                    Value="Bold" />
+                            </Trigger>
+                        </Style.Triggers>
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
                         <Setter Property="HeaderTemplate" >
                             <Setter.Value>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel VirtualizingStackPanel.IsVirtualizing="False" Orientation="Horizontal">
                                         <Image Name="img" Width="20" Height="20" Stretch="Fill" Source="{Binding Path=Icon}"/>
                                         <TextBlock Text="{Binding NameT }" />
                                     </StackPanel>
