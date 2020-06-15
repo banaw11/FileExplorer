@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Runtime.Remoting.Messaging;
 using System.Drawing;
+using System.Linq.Expressions;
 
 namespace FileExplorer
 {
@@ -22,6 +23,7 @@ namespace FileExplorer
         public static List<string> previousPaths = new List<string>();
         public static List<string> nextPaths = new List<string>();
         public static List<Element> elements = new List<Element>();
+        public static bool searchingDone = false;
         public Paths()
         {
             
@@ -269,45 +271,132 @@ namespace FileExplorer
 
         public static void GetSearchingElement(string name, string path)
         {
+            searchingDone = false;
             elements.Clear();
-            currentPathsDirectories = Directory.GetDirectories(path);
-            currentPathsFiles = Directory.GetFiles(path);
-            foreach (var item in currentPathsFiles)
+            if(path is null)
             {
-                if(Equals(Path.GetFileNameWithoutExtension(item).ToLower(), name) || item.ToLower().Contains(name))
+                foreach (var drive in GetDrives())
                 {
-                    elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = GetIconOfFile(new FileInfo(item).Extension), Tag = item });
+                    currentPathsDirectories = Directory.GetDirectories(drive);
+                    currentPathsFiles = Directory.GetFiles(drive);
+
+                    foreach (var item in currentPathsFiles)
+                    {
+                        if (CheckAcessPath(item))
+                        {
+                            if (Equals(Path.GetFileNameWithoutExtension(item).ToLower(), name) || item.ToLower().Contains(name))
+                            {
+                                elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = GetIconOfFile(new FileInfo(item).Extension), Tag = item });
+                            }
+                        }
+
+                    }
+                    foreach (var item in currentPathsDirectories)
+                    {
+                        if (CheckAcessPath(item))
+                        {
+                            if (Equals(new DirectoryInfo(item).Name.ToLower(), name) || item.ToLower().Contains(name))
+                            {
+                                elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)), Tag = item });
+                            }
+                            SearchSubDirectory(name, item);
+                        }
+
+                    }
                 }
             }
-            foreach (var item in currentPathsDirectories)
+            else
             {
-                if(Equals(new DirectoryInfo(item).Name.ToLower(), name) || item.ToLower().Contains(name) )
+                foreach (var item in currentPathsFiles)
                 {
-                    elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)), Tag = item });
+                    if (CheckAcessPath(item))
+                    {
+                        if (Equals(Path.GetFileNameWithoutExtension(item).ToLower(), name) || item.ToLower().Contains(name))
+                        {
+                            elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = GetIconOfFile(new FileInfo(item).Extension), Tag = item });
+                        }
+                    }
+
                 }
-                SearchSubDirectory(name, item);
+                foreach (var item in currentPathsDirectories)
+                {
+                    if (CheckAcessPath(item))
+                    {
+                        if (Equals(new DirectoryInfo(item).Name.ToLower(), name) || item.ToLower().Contains(name))
+                        {
+                            elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)), Tag = item });
+                        }
+                        SearchSubDirectory(name, item);
+                    }
+
+                }
             }
+            searchingDone = true;
             
         }
 
         private static void SearchSubDirectory(string name, string path)
         {
-            currentPathsDirectories = Directory.GetDirectories(path);
-            currentPathsFiles = Directory.GetFiles(path);
-            foreach (var item in currentPathsFiles)
-            {
-                if (Equals(Path.GetFileNameWithoutExtension(item).ToLower(), name) || item.ToLower().Contains(name))
+                foreach (var item in currentPathsFiles)
                 {
-                    elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = GetIconOfFile(new FileInfo(item).Extension), Tag = item });
+                    if(CheckAcessPath(item))
+                    {
+                        if (Equals(Path.GetFileNameWithoutExtension(item).ToLower(), name) || item.ToLower().Contains(name))
+                        {
+                            elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = GetIconOfFile(new FileInfo(item).Extension), Tag = item });
+                        }
+                    }
+                    
+                }
+                foreach (var item in currentPathsDirectories)
+                {
+                    if(CheckAcessPath(item))
+                    {
+                        if (Equals(new DirectoryInfo(item).Name.ToLower(), name) || item.ToLower().Contains(name))
+                        {
+                            elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)), Tag = item });
+                        }
+                        SearchSubDirectory(name, item);
+                    }
+                    
+                }
+            
+        }
+
+        private static bool CheckAcessPath(string path)
+        {
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    FileAttributes file = File.GetAttributes(path);
+
+                    if (file.HasFlag(FileAttributes.Directory) && file.HasFlag(FileAttributes.Hidden) is false)
+                    {
+                        return true;
+                    }
+                    else if (file.HasFlag(FileAttributes.Hidden) is false)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+               
+                else
+                {
+                    return false;
                 }
             }
-            foreach (var item in currentPathsDirectories)
+            catch (UnauthorizedAccessException)
             {
-                if (Equals(new DirectoryInfo(item).Name.ToLower(), name) || item.ToLower().Contains(name))
-                {
-                    elements.Add(new Element { NameE = new FileInfo(item).Name, Icon = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)), Tag = item });
-                }
-                SearchSubDirectory(name, item);
+                return false;
+            }
+            catch (StackOverflowException)
+            {
+                return false;
             }
         }
 

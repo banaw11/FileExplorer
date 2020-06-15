@@ -18,13 +18,10 @@
             <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <TextBox KeyDown="SearchElement" Grid.Column="3" x:Name="searchText" Margin="10"  Height="23"  TextWrapping="Wrap" Text="" VerticalAlignment="Center" >
-                <TextBox.ContextMenu>
-                    <ContextMenu>
-                        <Image Source="{Binding Icon}"/>
-                    </ContextMenu>
-                </TextBox.ContextMenu>
-            </TextBox>
+            <StackPanel  Grid.Column="3">
+
+                <TextBox PreviewMouseLeftButtonDown="TypeElement"  KeyDown="SearchElement" KeyUp="SearchElement" Height="23" Margin="10" x:Name="searchText"  TextWrapping="Wrap" Text="" VerticalAlignment="Center"/>
+            </StackPanel>
 
             <Button Click="GoToPreviousPath" Grid.Column="0" Width="35" Height="35"  x:Name="prev" Background="Transparent" BorderBrush="Transparent">
                 <StackPanel>
@@ -139,6 +136,25 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </Grid>
+            <ListView Visibility="Hidden" VerticalAlignment="Top" HorizontalAlignment="Right" MinWidth="100" MaxWidth="200" Margin="0,0,5,0" MouseDoubleClick="GoToSelectedElement" x:Name="searchList" >
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style>
+                                <Setter Property="FrameworkElement.Visibility" Value="Collapsed"/>
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+                        <GridViewColumn Width="20" >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding Icon}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="180" DisplayMemberBinding="{Binding NameE}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
         </Grid>
 
 

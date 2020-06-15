@@ -99,7 +99,8 @@ namespace FileExplorer
                 mainBrowser.Visibility = Visibility.Hidden;
             }
             Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
-            
+            searchText.Text = "Searching in : " + new DirectoryInfo(Paths.CurrentPath).Name;
+
         }
 
         public void LoadThisPc()
@@ -303,30 +304,54 @@ namespace FileExplorer
 
         public void SearchElement (object sender, KeyEventArgs e)
         {
+            int counter = 0;
             TextBox text = sender as TextBox;
-            text.ContextMenu.IsOpen = false;
             string searchingFile = text.Text.ToLower();
-            
+            searchList.Visibility = Visibility.Hidden;
+            searchList.Items.Clear();
             if (searchingFile.Length > 1)
             {
-                text.ContextMenu.Items.Clear();
-                //Thread.Sleep(600);
                 Paths.GetSearchingElement(searchingFile, Paths.CurrentPath);
-                foreach (var element in Paths.elements)
+                if (elements.Count > 0)
                 {
-                    MenuItem item = new MenuItem();
-                    item.Header = element.NameE;
-                    item.Tag = element.Tag;
-                    item.Icon = new Image { Source = element.Icon };
-                    text.ContextMenu.Items.Add(item);
+                    foreach (var element in Paths.elements)
+                    {
+                         searchList.Items.Add(element);
+                        if (counter++ == 8) break;
+                    }
+                    searchList.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    searchList.Visibility = Visibility.Hidden;
                 }
 
-
-                
             }
             
 
         }
+
+        public void GoToSelectedElement(object sender, EventArgs e)
+        {
+           
+            searchList.Visibility = Visibility.Hidden;
+            searchText.Text = null;
+            ListView searchedList = sender as ListView;
+            Element searchedElement = searchedList.SelectedItem as Element;
+            if (Paths.CheckElement(searchedElement.Tag))
+            {
+                RefreshFileBrowser();
+                Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
+            }
+
+
+        }
+
+        public void TypeElement (object sender, MouseButtonEventArgs e)
+        {
+            searchText.Text = null;
+        }
+     
     }
 
 }
