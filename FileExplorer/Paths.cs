@@ -7,7 +7,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Controls;
 using System.Windows;
 using System.Runtime.Remoting.Messaging;
-using System.Drawing;
 using System.Linq.Expressions;
 
 namespace FileExplorer
@@ -24,6 +23,7 @@ namespace FileExplorer
         public static List<string> nextPaths = new List<string>();
         public static List<Element> elements = new List<Element>();
         public static bool searchingDone = false;
+        public  static string test = "";
         public Paths()
         {
             
@@ -56,12 +56,20 @@ namespace FileExplorer
 
                 foreach (var item in currentPathsDirectories)
                 {
-                    MainWindow.elements.Add(new ElementOfDirectory { Icon = new BitmapImage(new Uri(@"Icons\folder.png",UriKind.Relative)),  Name = new DirectoryInfo(item).Name, Date = new DirectoryInfo(item).LastWriteTime, Type = "directory", Size = null, Path = item });
+                    if(CheckAcessPath(item))
+                    {
+                         MainWindow.elements.Add(new ElementOfDirectory { Icon = new BitmapImage(new Uri(@"Icons\folder.png",UriKind.Relative)),  Name = new DirectoryInfo(item).Name, Date = new DirectoryInfo(item).LastWriteTime, Type = "directory", Size = null, Path = item });
+                    }
+                   
                 }
 
                 foreach (var item in currentPathsFiles)
                 {
-                    MainWindow.elements.Add(new ElementOfDirectory {Icon = GetIconOfFile(new FileInfo(item).Extension),  Name = Path.GetFileNameWithoutExtension(item), Date = new FileInfo(item).LastWriteTime, Type = new FileInfo(item).Extension, Size = (new FileInfo(item).Length / 1024).ToString() + " KB", Path = item });
+                    if(CheckAcessPath(item))
+                    {
+                        MainWindow.elements.Add(new ElementOfDirectory {Icon = GetIconOfFile(new FileInfo(item).Extension),  Name = Path.GetFileNameWithoutExtension(item), Date = new FileInfo(item).LastWriteTime, Type = new FileInfo(item).Extension, Size = (new FileInfo(item).Length / 1024).ToString() + " KB", Path = item });
+                    }
+                    
                 }
 
                 
@@ -87,6 +95,7 @@ namespace FileExplorer
             }
             else
             {
+                
                 OpenFile(path);
                 return false;
             }
@@ -169,10 +178,14 @@ namespace FileExplorer
                 {
                     foreach (string element in Directory.GetDirectories(item.Tag.ToString()))
                     {
-                        TreeViewItem subitem = new TreeViewItem { Header = new Item() { NameT = new DirectoryInfo(element).Name, Icon = new BitmapImage(new Uri(@"Icons\folder.png", UriKind.Relative)) }, Tag = element };
-                        subitem.Items.Add(treeNode);
-                        subitem.Expanded += new RoutedEventHandler(GetChild);
-                        item.Items.Add(subitem);
+                        if(CheckAcessPath(element))
+                        {
+                            TreeViewItem subitem = new TreeViewItem { Header = new Item() { NameT = new DirectoryInfo(element).Name, Icon = new BitmapImage(new Uri(@"Icons\folder.png", UriKind.Relative)) }, Tag = element };
+                            subitem.Items.Add(treeNode);
+                            subitem.Expanded += new RoutedEventHandler(GetChild);
+                            item.Items.Add(subitem);
+                        }
+                        
                     }
                 }
                 catch (Exception) { }
@@ -226,8 +239,6 @@ namespace FileExplorer
             string parent,  root = "ThisPC";
             if (path != null)
             {
-
-
                 if (Directory.GetParent(path) != null)
                 {
                     pathElements.Add(new ElementOfPath { Tag=path, NameE = new DirectoryInfo(path).Name, Icon = new BitmapImage(new Uri(@"Icons\right.png", UriKind.Relative)) });
@@ -255,7 +266,7 @@ namespace FileExplorer
            
             
         }
-
+       
         public static bool CheckPath(string path)
         {
             if (Directory.Exists(path))
@@ -307,6 +318,8 @@ namespace FileExplorer
             }
             else
             {
+                currentPathsFiles = Directory.GetFiles(path);
+                currentPathsDirectories = Directory.GetDirectories(path);
                 foreach (var item in currentPathsFiles)
                 {
                     if (CheckAcessPath(item))
@@ -337,6 +350,8 @@ namespace FileExplorer
 
         private static void SearchSubDirectory(string name, string path)
         {
+            currentPathsFiles = Directory.GetFiles(path);
+            currentPathsDirectories = Directory.GetDirectories(path);
                 foreach (var item in currentPathsFiles)
                 {
                     if(CheckAcessPath(item))
@@ -367,15 +382,13 @@ namespace FileExplorer
         {
             try
             {
-                if (Directory.Exists(path))
-                {
                     FileAttributes file = File.GetAttributes(path);
 
                     if (file.HasFlag(FileAttributes.Directory) && file.HasFlag(FileAttributes.Hidden) is false)
                     {
                         return true;
                     }
-                    else if (file.HasFlag(FileAttributes.Hidden) is false)
+                    else if (file.HasFlag(FileAttributes.Hidden) is false && file.HasFlag(FileAttributes.Directory) is false && file.HasFlag(FileAttributes.Temporary) is false )
                     {
                         return true;
                     }
@@ -383,12 +396,7 @@ namespace FileExplorer
                     {
                         return false;
                     }
-                }
-               
-                else
-                {
-                    return false;
-                }
+                
             }
             catch (UnauthorizedAccessException)
             {
@@ -398,6 +406,42 @@ namespace FileExplorer
             {
                 return false;
             }
+         
+
+        }
+
+        public static void ShowFoundedElements()
+        {
+            foreach (var i in elements)
+                    {
+                        if(File.GetAttributes(i.Tag) == FileAttributes.Directory)
+                        {
+                            MainWindow.elements.Add(new ElementOfDirectory { Icon = new BitmapImage(new Uri(@"Icons\folder.png",UriKind.Relative)),  Name = new DirectoryInfo(i.Tag).Name, Date = new DirectoryInfo(i.Tag).LastWriteTime, Type = "directory", Size = null, Path = i.Tag });
+                        }
+                        else
+                        {
+                            MainWindow.elements.Add(new ElementOfDirectory {Icon = GetIconOfFile(new FileInfo(i.Tag).Extension),  Name = Path.GetFileNameWithoutExtension(i.Tag), Date = new FileInfo(i.Tag).LastWriteTime, Type = new FileInfo(i.Tag).Extension, Size = (new FileInfo(i.Tag).Length / 1024).ToString() + " KB", Path = i.Tag });
+                        }
+                    }
+        }
+
+        public static List<MenuItem> NewElementsOfConMen()
+        {
+            List<MenuItem> items = new List<MenuItem>();
+            MenuItem item = new MenuItem();
+            item.Header = "Folder";
+           // item.Click += Files.AddNewFolder(currentPath);
+            item.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)) };
+            items.Add(item);
+            item.Header = "Shortcut";
+            //item.Click += Files.CreateShortCut(currentPath);
+            item.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/shortcut.png", UriKind.Absolute)) };
+            items.Add(item);
+            item.Header = "Text Document";
+           // item.Click += Files.AddNewFileTxt(currentPath);
+            item.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/txt.png", UriKind.Absolute)) };
+            items.Add(item);
+            return items;
         }
 
     }

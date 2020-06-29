@@ -301,7 +301,7 @@ namespace FileExplorer
                 Paths.ShowCurrentPath(pathControl, Paths.CurrentPath);
             }
         }
-
+        
         public void SearchElement (object sender, KeyEventArgs e)
         {
             int counter = 0;
@@ -309,7 +309,19 @@ namespace FileExplorer
             string searchingFile = text.Text.ToLower();
             searchList.Visibility = Visibility.Hidden;
             searchList.Items.Clear();
-            if (searchingFile.Length > 1)
+            if(e.Key == Key.Enter)
+            {
+                elements.Clear();
+                listExplorer.Items.Clear();
+                Paths.ShowFoundedElements();
+                foreach (var i in elements)
+                {
+                    listExplorer.Items.Add(i);
+                }
+            }
+            else
+            {
+                if (searchingFile.Length > 1)
             {
                 Paths.GetSearchingElement(searchingFile, Paths.CurrentPath);
                 if (elements.Count > 0)
@@ -327,6 +339,8 @@ namespace FileExplorer
                 }
 
             }
+            }
+            
             
 
         }
@@ -352,6 +366,29 @@ namespace FileExplorer
             searchText.Text = null;
         }
      
+        public void ContextMenuExplorer (object sender, RoutedEventArgs e)
+        {
+            ListView list = sender as ListView;
+            ElementOfDirectory element = list.SelectedItem as ElementOfDirectory;
+            if(element!= null)
+            {
+
+            }
+        }
+        public void RefreshView(object sender, RoutedEventArgs e)
+        {
+            RefreshFileBrowser();
+        }
+
+        public void NewElements(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            List<MenuItem> items = new List<MenuItem>();
+            items = Paths.NewElementsOfConMen();
+            item.ContextMenu.DataContext = items;
+            item.ContextMenu.IsOpen = true;
+            
+        }
     }
 
 }

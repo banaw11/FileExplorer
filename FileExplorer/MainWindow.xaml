@@ -67,7 +67,7 @@
         </Grid>
 
         <Grid UIElement.PreviewMouseLeftButtonDown="PathGrid" x:Name="fileBrowser"  Margin="165,45,5,10"  MinHeight="449" MinWidth="600">
-            <ListView Visibility="Hidden" Margin="10,10,0,-11" Name="listExplorer" MouseDoubleClick="FileBrowser" >
+            <ListView Visibility="Hidden" Margin="10,10,0,-11" Name="listExplorer" MouseDoubleClick="FileBrowser" PreviewMouseRightButtonDown="ContextMenuExplorer">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Width="50"  >
@@ -83,6 +83,12 @@
                         <GridViewColumn Header="Size" Width="80" DisplayMemberBinding="{Binding Size}"/>
                     </GridView>
                 </ListView.View>
+              <ListView.ContextMenu>
+                <ContextMenu>
+                  <MenuItem Header="Refresh" Click="RefreshView"/>
+                  <MenuItem Header="New" Click="NewElements"/>
+                </ContextMenu>
+              </ListView.ContextMenu>
             </ListView>
             <Grid x:Name="mainBrowser" Visibility="Hidden">
                 <Grid.ColumnDefinitions>
