@@ -67,6 +67,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Files.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="ElementOfDirectory.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -153,6 +154,9 @@
   <ItemGroup>
     <Resource Include="Icons\down.png" />
     <Resource Include="Icons\right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\shortcut.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

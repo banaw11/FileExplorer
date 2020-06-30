@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileExplorer"
         xmlns:self="clr-namespace:FileExplorer"
+        xmlns:helpermethods="using:CoreProject.HelperMethods"
         mc:Ignorable="d"
         Title="File Explorer" MinWidth="770" MinHeight="450" >
     <Grid  >
@@ -86,7 +87,23 @@
               <ListView.ContextMenu>
                 <ContextMenu>
                   <MenuItem Header="Refresh" Click="RefreshView"/>
-                  <MenuItem Header="New" Click="NewElements"/>
+                  <MenuItem Header="New">
+                    <MenuItem Header="Folder" Command="" >
+                      <MenuItem.Icon>
+                        <Image Source ="/FileExplorer;component/Icons/folder.png"/>
+                      </MenuItem.Icon>
+                      </MenuItem>
+                    <MenuItem Header ="Shortcut">
+                      <MenuItem.Icon>
+                        <Image Source ="/FileExplorer;component/Icons/shortcut.png"/>
+                      </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header ="Text Document">
+                      <MenuItem.Icon>
+                        <Image Source ="/FileExplorer;component/Icons/txt.png"/>
+                      </MenuItem.Icon>
+                    </MenuItem>
+                    </MenuItem>
                 </ContextMenu>
               </ListView.ContextMenu>
             </ListView>

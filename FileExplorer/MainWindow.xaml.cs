@@ -372,7 +372,7 @@ namespace FileExplorer
             ElementOfDirectory element = list.SelectedItem as ElementOfDirectory;
             if(element!= null)
             {
-
+                MessageBox.Show("tekst");
             }
         }
         public void RefreshView(object sender, RoutedEventArgs e)
@@ -380,15 +380,7 @@ namespace FileExplorer
             RefreshFileBrowser();
         }
 
-        public void NewElements(object sender, RoutedEventArgs e)
-        {
-            MenuItem item = sender as MenuItem;
-            List<MenuItem> items = new List<MenuItem>();
-            items = Paths.NewElementsOfConMen();
-            item.ContextMenu.DataContext = items;
-            item.ContextMenu.IsOpen = true;
-            
-        }
+        
     }
 
 }

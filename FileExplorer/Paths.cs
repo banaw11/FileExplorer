@@ -425,23 +425,34 @@ namespace FileExplorer
                     }
         }
 
-        public static List<MenuItem> NewElementsOfConMen()
+        public static void NewElementsOfConMen(MenuItem subMenu)
         {
-            List<MenuItem> items = new List<MenuItem>();
-            MenuItem item = new MenuItem();
-            item.Header = "Folder";
-           // item.Click += Files.AddNewFolder(currentPath);
-            item.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)) };
-            items.Add(item);
-            item.Header = "Shortcut";
-            //item.Click += Files.CreateShortCut(currentPath);
-            item.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/shortcut.png", UriKind.Absolute)) };
-            items.Add(item);
-            item.Header = "Text Document";
-           // item.Click += Files.AddNewFileTxt(currentPath);
-            item.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/txt.png", UriKind.Absolute)) };
-            items.Add(item);
-            return items;
+            List<MenuItem> list = new List<MenuItem>();
+
+            MenuItem subItem = new MenuItem();
+
+            subItem.Header = "Folder";
+            subItem.Click += Files.AddNewFolder;
+            subItem.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)) };
+            list.Add(subItem);
+            //subMenu.ContextMenu.Items.Add(subItem);
+            subMenu.ItemsSource = list;
+
+            //subItem.Header = "Shortcut";
+            //subItem.Click += Files.CreateShortCut;
+            //subItem.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/shortcut.png", UriKind.Absolute)) };
+
+
+            //subMenu.ContextMenu.Items.Add(subItem);
+
+            //subItem.Header = "Text Document";
+            //subItem.Click += Files.AddNewFileTxt;
+            //subItem.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/txt.png", UriKind.Absolute)) };
+
+            //subMenu.ContextMenu.Items.Add(subItem);
+
+
+
         }
 
     }
