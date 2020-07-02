@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileExplorer"
         xmlns:self="clr-namespace:FileExplorer"
-        xmlns:helpermethods="using:CoreProject.HelperMethods"
         mc:Ignorable="d"
         Title="File Explorer" MinWidth="770" MinHeight="450" >
     <Grid  >
@@ -68,7 +67,7 @@
         </Grid>
 
         <Grid UIElement.PreviewMouseLeftButtonDown="PathGrid" x:Name="fileBrowser"  Margin="165,45,5,10"  MinHeight="449" MinWidth="600">
-            <ListView Visibility="Hidden" Margin="10,10,0,-11" Name="listExplorer" MouseDoubleClick="FileBrowser" PreviewMouseRightButtonDown="ContextMenuExplorer">
+            <ListView Visibility="Hidden" Margin="10,10,0,-11" Name="listExplorer" MouseDoubleClick="FileBrowser" PreviewMouseRightButtonDown="ContextMenuExplorer" SelectionMode="Multiple">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Width="50"  >
@@ -78,34 +77,71 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
+                      <GridViewColumn Header="Name" Width="120" >
+                        <GridViewColumn.CellTemplate>
+                          <DataTemplate>
+                            <TextBox Width="120" BorderThickness="0" Background="Transparent" Text="{Binding Name.Text}" IsEnabled="{Binding Value}" KeyDown="ChangeName">
+                            <TextBox.ContextMenu>
+                              <ContextMenu Visibility="Hidden"/>
+                            </TextBox.ContextMenu>
+                          </TextBox>
+                          </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                      </GridViewColumn>
                         <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding Date}" />
                         <GridViewColumn Header="Type" Width="80" DisplayMemberBinding="{Binding Type}" />
                         <GridViewColumn Header="Size" Width="80" DisplayMemberBinding="{Binding Size}"/>
                     </GridView>
                 </ListView.View>
               <ListView.ContextMenu>
-                <ContextMenu>
+                <ContextMenu >
                   <MenuItem Header="Refresh" Click="RefreshView"/>
                   <MenuItem Header="New">
-                    <MenuItem Header="Folder" Command="" >
+                    <MenuItem Header="Folder" Click="NewItemEvent" Tag="folder" >
                       <MenuItem.Icon>
                         <Image Source ="/FileExplorer;component/Icons/folder.png"/>
                       </MenuItem.Icon>
                       </MenuItem>
-                    <MenuItem Header ="Shortcut">
-                      <MenuItem.Icon>
-                        <Image Source ="/FileExplorer;component/Icons/shortcut.png"/>
-                      </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header ="Text Document">
+                    <MenuItem Header ="Text Document" Click="NewItemEvent" Tag="txtfile">
                       <MenuItem.Icon>
                         <Image Source ="/FileExplorer;component/Icons/txt.png"/>
                       </MenuItem.Icon>
                     </MenuItem>
                     </MenuItem>
+                  <MenuItem Header="Paste" Click="PasteElement">
+                  </MenuItem>
                 </ContextMenu>
+                
               </ListView.ContextMenu>
+            <ListView.Resources>
+                <ContextMenu x:Key="ItemContextMenu">
+                      <MenuItem Header="Open" Click="OpenElement"/>
+                      <MenuItem Header="New">
+                        <MenuItem Header="Folder" Click="NewItemEvent" Tag="folder" >
+                          <MenuItem.Icon>
+                            <Image Source ="/FileExplorer;component/Icons/folder.png"/>
+                          </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header ="Text Document" Click="NewItemEvent" Tag="txtfile">
+                          <MenuItem.Icon>
+                            <Image Source ="/FileExplorer;component/Icons/txt.png"/>
+                        </MenuItem.Icon>
+                        </MenuItem>
+                      </MenuItem>
+                      <MenuItem Header="Refresh" Click="RefreshView"/>
+                      <MenuItem Header="Copy" Click="CopyElement"/>
+                      <MenuItem Header="Cut" Click="CutElement"/>
+                      <MenuItem Header="Paste" Click="PasteElement"/>
+                      <MenuItem Header="Rename" Click ="RenameElement"/>
+                      <MenuItem Header="Delete" Click="DeleteElement"/>
+                      <MenuItem Header="Properties" Click="ShowPropertiesElement"/>
+                    </ContextMenu>
+             </ListView.Resources>
+              <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                  <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                </Style>
+              </ListView.ItemContainerStyle>
             </ListView>
             <Grid x:Name="mainBrowser" Visibility="Hidden">
                 <Grid.ColumnDefinitions>

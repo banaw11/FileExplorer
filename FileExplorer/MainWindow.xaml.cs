@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Threading;
 
+
 namespace FileExplorer
 {
     
@@ -23,11 +24,12 @@ namespace FileExplorer
         
 
         internal static List<ElementOfDirectory> elements = new List<ElementOfDirectory>();
+        internal static bool flag;
         public MainWindow()
         {
             
             InitializeComponent();
-
+            
             LoadThisPc();
             
         }
@@ -370,9 +372,11 @@ namespace FileExplorer
         {
             ListView list = sender as ListView;
             ElementOfDirectory element = list.SelectedItem as ElementOfDirectory;
-            if(element!= null)
+            if(element is null)
             {
-                MessageBox.Show("tekst");
+                ContextMenu menu = list.ContextMenu;
+                
+                
             }
         }
         public void RefreshView(object sender, RoutedEventArgs e)
@@ -380,7 +384,110 @@ namespace FileExplorer
             RefreshFileBrowser();
         }
 
-        
+        public void NewItemEvent(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+
+            if (item.Tag.ToString() == "folder") Files.AddNewFolder(listExplorer);
+            if (item.Tag.ToString() == "shortcut") Files.CreateShortCut(listExplorer);
+            if (item.Tag.ToString() == "txtfile") Files.AddNewFileTxt(listExplorer);
+            
+            
+        }
+
+        public void ChangeName(object sender, KeyEventArgs e)
+        {
+            TextBox text = sender as TextBox;
+            if(e.Key == Key.Enter)
+            {
+                Files.RenameItem(listExplorer, text.Text);
+                RefreshFileBrowser();
+            }
+        }
+
+        public void OpenElement(object sender, RoutedEventArgs e)
+        {
+            ElementOfDirectory element = listExplorer.SelectedItem as ElementOfDirectory;
+            if (element.Type == "directory")
+            {
+                Paths.CurrentPath = element.Path;
+                RefreshFileBrowser();
+            }
+            else
+            {
+                Paths.OpenFile(element.Path);
+            }
+        }
+
+        public void RenameElement(object sender, RoutedEventArgs e)
+        {
+            ElementOfDirectory element = listExplorer.SelectedItem as ElementOfDirectory;
+            elements[elements.IndexOf(element)].Value = true;
+            listExplorer.Items.Clear();
+            foreach (var i in elements)
+            {
+                listExplorer.Items.Add(i);
+            }
+            listExplorer.SelectedItem = listExplorer.Items[elements.IndexOf(element)];
+            flag = false;
+        }
+
+        public void DeleteElement(object sender, RoutedEventArgs e)
+        {
+            ElementOfDirectory element = listExplorer.SelectedItem as ElementOfDirectory;
+            string message = "Are you want delete "+element.Name.Text+" ?";
+            MessageBoxButton buttons = MessageBoxButton.YesNo;
+            MessageBoxResult result = MessageBox.Show(message,"Delete", buttons);
+            if (result == MessageBoxResult.Yes)
+            {
+                Files.DeleteItem(listExplorer);
+                RefreshFileBrowser();
+            }
+            
+            
+        }
+
+        public void CopyElement(object sender, RoutedEventArgs e)
+        {
+            ElementOfDirectory element = listExplorer.SelectedItem as ElementOfDirectory;
+            Files.copiedElement = element.Path;
+            Files.flagCopyCut = true;
+        }
+
+        public void CutElement(object sender, RoutedEventArgs e)
+        {
+            ElementOfDirectory element = listExplorer.SelectedItem as ElementOfDirectory;
+            Files.copiedElement = element.Path;
+            Files.flagCopyCut = false;
+        }
+
+        public void PasteElement(object sender, RoutedEventArgs e)
+        {
+            ElementOfDirectory element = listExplorer.SelectedItem as ElementOfDirectory;
+            string newPath="";
+            if(element != null)
+            {
+                if(File.GetAttributes(element.Path) == FileAttributes.Directory)
+                {
+                    newPath = element.Path;
+                }
+                else
+                {
+                    newPath = Paths.CurrentPath;
+                }
+            }
+            else
+            { 
+                newPath = Paths.CurrentPath; 
+            }
+            Files.Paste(newPath);
+            RefreshFileBrowser();
+        }
+        public void ShowPropertiesElement(object sender, RoutedEventArgs e)
+        {
+
+        }
+
     }
 
 }

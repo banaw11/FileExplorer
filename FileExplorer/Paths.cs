@@ -58,7 +58,7 @@ namespace FileExplorer
                 {
                     if(CheckAcessPath(item))
                     {
-                         MainWindow.elements.Add(new ElementOfDirectory { Icon = new BitmapImage(new Uri(@"Icons\folder.png",UriKind.Relative)),  Name = new DirectoryInfo(item).Name, Date = new DirectoryInfo(item).LastWriteTime, Type = "directory", Size = null, Path = item });
+                         MainWindow.elements.Add(new ElementOfDirectory { Icon = new BitmapImage(new Uri(@"Icons\folder.png",UriKind.Relative)),  Name = new TextBox { Text = new DirectoryInfo(item).Name }, Date = new DirectoryInfo(item).LastWriteTime, Type = "directory", Size = null, Path = item });
                     }
                    
                 }
@@ -67,7 +67,7 @@ namespace FileExplorer
                 {
                     if(CheckAcessPath(item))
                     {
-                        MainWindow.elements.Add(new ElementOfDirectory {Icon = GetIconOfFile(new FileInfo(item).Extension),  Name = Path.GetFileNameWithoutExtension(item), Date = new FileInfo(item).LastWriteTime, Type = new FileInfo(item).Extension, Size = (new FileInfo(item).Length / 1024).ToString() + " KB", Path = item });
+                        MainWindow.elements.Add(new ElementOfDirectory {Icon = GetIconOfFile(new FileInfo(item).Extension),  Name = new TextBox { Text = Path.GetFileNameWithoutExtension(item) }, Date = new FileInfo(item).LastWriteTime, Type = new FileInfo(item).Extension, Size = (new FileInfo(item).Length / 1024).ToString() + " KB", Path = item });
                     }
                     
                 }
@@ -104,7 +104,7 @@ namespace FileExplorer
         /// Method opening file from selected path.
         /// </summary>
         /// <param name="path">Path of file</param>
-        private static void OpenFile(string path)
+        public static void OpenFile(string path)
         {
             try
             {
@@ -378,7 +378,7 @@ namespace FileExplorer
             
         }
 
-        private static bool CheckAcessPath(string path)
+        public static bool CheckAcessPath(string path)
         {
             try
             {
@@ -416,44 +416,16 @@ namespace FileExplorer
                     {
                         if(File.GetAttributes(i.Tag) == FileAttributes.Directory)
                         {
-                            MainWindow.elements.Add(new ElementOfDirectory { Icon = new BitmapImage(new Uri(@"Icons\folder.png",UriKind.Relative)),  Name = new DirectoryInfo(i.Tag).Name, Date = new DirectoryInfo(i.Tag).LastWriteTime, Type = "directory", Size = null, Path = i.Tag });
+                            MainWindow.elements.Add(new ElementOfDirectory { Icon = new BitmapImage(new Uri(@"Icons\folder.png",UriKind.Relative)),  Name = new TextBox {Text = new DirectoryInfo(i.Tag).Name }, Date = new DirectoryInfo(i.Tag).LastWriteTime, Type = "directory", Size = null, Path = i.Tag });
                         }
                         else
                         {
-                            MainWindow.elements.Add(new ElementOfDirectory {Icon = GetIconOfFile(new FileInfo(i.Tag).Extension),  Name = Path.GetFileNameWithoutExtension(i.Tag), Date = new FileInfo(i.Tag).LastWriteTime, Type = new FileInfo(i.Tag).Extension, Size = (new FileInfo(i.Tag).Length / 1024).ToString() + " KB", Path = i.Tag });
+                            MainWindow.elements.Add(new ElementOfDirectory {Icon = GetIconOfFile(new FileInfo(i.Tag).Extension),  Name = new TextBox {Text = Path.GetFileNameWithoutExtension(i.Tag) }, Date = new FileInfo(i.Tag).LastWriteTime, Type = new FileInfo(i.Tag).Extension, Size = (new FileInfo(i.Tag).Length / 1024).ToString() + " KB", Path = i.Tag });
                         }
                     }
         }
 
-        public static void NewElementsOfConMen(MenuItem subMenu)
-        {
-            List<MenuItem> list = new List<MenuItem>();
-
-            MenuItem subItem = new MenuItem();
-
-            subItem.Header = "Folder";
-            subItem.Click += Files.AddNewFolder;
-            subItem.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/folder.png", UriKind.Absolute)) };
-            list.Add(subItem);
-            //subMenu.ContextMenu.Items.Add(subItem);
-            subMenu.ItemsSource = list;
-
-            //subItem.Header = "Shortcut";
-            //subItem.Click += Files.CreateShortCut;
-            //subItem.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/shortcut.png", UriKind.Absolute)) };
-
-
-            //subMenu.ContextMenu.Items.Add(subItem);
-
-            //subItem.Header = "Text Document";
-            //subItem.Click += Files.AddNewFileTxt;
-            //subItem.Icon = new Image {Source = new BitmapImage(new Uri(@"pack://application:,,,/FileExplorer;component/Icons/txt.png", UriKind.Absolute)) };
-
-            //subMenu.ContextMenu.Items.Add(subItem);
-
-
-
-        }
+       
 
     }
 
